@@ -12,9 +12,9 @@ jobs:
   build-rbl:
     runs-on: ubuntu-22.04
     env:
-      MESH_VERSION: 1.18.318-blemesh.2
+      MESH_VERSION: 1.18.318-blemesh.3
       BUILD_DIR: blemesh-build
-      USER_SW_VER: 1.18.318-blemesh.2_Test
+      USER_SW_VER: 1.18.318-blemesh.3_Test
     steps:
       - name: Checkout source
         uses: actions/checkout@v5
@@ -34,12 +34,12 @@ jobs:
       - name: Package and verify OTA RBL
         run: |
           python3 -m pip install --user pycryptodome
-          python3 build_scripts/package_bk7231n_rbl.py "sdk/OpenBK7231N/apps/OpenBK7231N/output/$BUILD_DIR/OpenBK7231N_$BUILD_DIR.bin" "dist/OpenBK7231N_1.18.318-blemesh.2_Test.rbl" --version "$MESH_VERSION"
-          sha256sum "dist/OpenBK7231N_1.18.318-blemesh.2_Test.rbl"
+          python3 build_scripts/package_bk7231n_rbl.py "sdk/OpenBK7231N/apps/OpenBK7231N/output/$BUILD_DIR/OpenBK7231N_$BUILD_DIR.bin" "dist/OpenBK7231N_1.18.318-blemesh.3_Test.rbl" --version "$MESH_VERSION"
+          sha256sum "dist/OpenBK7231N_1.18.318-blemesh.3_Test.rbl"
 
       - name: Upload OTA RBL
         uses: actions/upload-artifact@v6
         with:
-          name: OpenBK7231N_1.18.318-blemesh.2_Test
-          path: dist/OpenBK7231N_1.18.318-blemesh.2_Test.rbl
+          name: OpenBK7231N_1.18.318-blemesh.3_Test
+          path: dist/OpenBK7231N_1.18.318-blemesh.3_Test.rbl
           if-no-files-found: error

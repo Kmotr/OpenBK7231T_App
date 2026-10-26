@@ -12,6 +12,8 @@ CPPDEFINES += -D__FILE__=\"\" -Wno-builtin-macro-redefined
 
 ifeq ($(TARGET_PLATFORM),bk7231n)
 
+CPPDEFINES += -DPLATFORM_BEKEN_NEW=1 -DENABLE_BLE_MESH_CUSTOM=1
+
 CFG_USE_MQTT_TLS ?= 0
 
 ifeq ($(CFG_USE_MQTT_TLS),1)

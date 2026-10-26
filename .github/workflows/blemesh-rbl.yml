@@ -1,0 +1,45 @@
+name: Build BLE Mesh BK7231N Test RBL
+on:
+  push:
+    branches:
+      - feature/ble-mesh-bk7231n
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-rbl:
+    runs-on: ubuntu-22.04
+    env:
+      MESH_VERSION: 1.18.318-blemesh.2
+      BUILD_DIR: blemesh-build
+      USER_SW_VER: 1.18.318-blemesh.2_Test
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v5
+
+      - name: Checkout BK7231N SDK and Berry
+        run: git submodule update --init --recursive --depth=1 sdk/OpenBK7231N libraries/berry
+
+      - name: Prepare generated Berry sources
+        run: make berry
+
+      - name: Link OpenBeken app into SDK
+        run: make APP_NAME=OpenBK7231N sdk/OpenBK7231N/apps/OpenBK7231N
+
+      - name: Build BK7231N firmware
+        run: make -j2 -C sdk/OpenBK7231N/platforms/bk7231n/bk7231n_os APP_BIN_NAME=OpenBK7231N USER_SW_VER="$USER_SW_VER" APP_VERSION="$BUILD_DIR"
+
+      - name: Package and verify OTA RBL
+        run: |
+          python3 -m pip install --user pycryptodome
+          python3 build_scripts/package_bk7231n_rbl.py "sdk/OpenBK7231N/apps/OpenBK7231N/output/$BUILD_DIR/OpenBK7231N_$BUILD_DIR.bin" "dist/OpenBK7231N_1.18.318-blemesh.2_Test.rbl" --version "$MESH_VERSION"
+          sha256sum "dist/OpenBK7231N_1.18.318-blemesh.2_Test.rbl"
+
+      - name: Upload OTA RBL
+        uses: actions/upload-artifact@v6
+        with:
+          name: OpenBK7231N_1.18.318-blemesh.2_Test
+          path: dist/OpenBK7231N_1.18.318-blemesh.2_Test.rbl
+          if-no-files-found: error

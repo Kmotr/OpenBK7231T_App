@@ -12,7 +12,7 @@
 #include "../../httpserver/new_http.h"
 #include "hal_ble_mesh_bk7231n.h"
 
-#if PLATFORM_BEKEN_NEW && PLATFORM_BK7231N && ENABLE_BLE_MESH_CUSTOM
+#if PLATFORM_BK7231N && ENABLE_BLE_MESH_CUSTOM
 #include "include.h"
 #include "ble_api.h"
 #include "app_ble.h"

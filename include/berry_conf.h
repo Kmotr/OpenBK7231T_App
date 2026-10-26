@@ -9,6 +9,11 @@
 #define BERRY_CONF_H
 
 #include <assert.h>
+#include <stddef.h>
+
+#if PLATFORM_BEKEN
+void *os_realloc(void *ptr, size_t size);
+#endif
 
 /* Macro: BE_DEBUG
  * Berry interpreter debug switch.

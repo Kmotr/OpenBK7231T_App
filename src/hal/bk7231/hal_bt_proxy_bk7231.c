@@ -4,6 +4,7 @@
 #include "../../new_pins.h"
 #include "../../new_cfg.h"
 #include "../hal_bt_proxy.h"
+#include "hal_ble_mesh_bk7231n.h"
 #include "../../logging/logging.h"
 #include "../../driver/drv_esphome_api.h"
 #include <string.h>
@@ -47,6 +48,7 @@ static void hal_bt_gap_callback(ble_notice_t notice, void* param)
 	if(notice == BLE_5_REPORT_ADV)
 	{
 		recv_adv_t* info = (recv_adv_t*)param;
+		HAL_BLEMeshBK7231N_OnAdvertisement(info);
 		g_bt_proxy.scan_total_packets++;
 		if(!ESPHome_API_PassScanResult(info->adv_addr, (int)(int8_t)info->rssi, info->adv_addr_type, info->data, info->data_len))
 		{

@@ -408,7 +408,6 @@ static commandResult_t CMD_DeepSleep(const void* context, const char* cmd, const
 	// SDK gets stack garbage for the GPIO maps and for lpo_32k_src (the RTC
 	// clock source), and the device wakes at a random time or not at all
 	memset(&params, 0, sizeof(params));
-	params.sleep_mode = MANUAL_MODE_IDLE;
 	params.wake_up_way = PS_DEEP_WAKEUP_RTC;
 	params.sleep_time = timeMS;
 	bk_enter_deep_sleep_mode(&params);

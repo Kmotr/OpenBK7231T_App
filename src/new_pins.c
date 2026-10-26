@@ -276,7 +276,6 @@ void PINS_BeginDeepSleepWithPinWakeUp(unsigned int wakeUpTime) {
 	memset(&params, 0, sizeof(params));
 	params.gpio_index_map = g_gpio_index_map[0];
 	params.gpio_edge_map = g_gpio_edge_map[0];
-	params.sleep_mode = MANUAL_MODE_IDLE;
 	if(wakeUpTime)
 	{
 		params.wake_up_way = PS_DEEP_WAKEUP_GPIO | PS_DEEP_WAKEUP_RTC;

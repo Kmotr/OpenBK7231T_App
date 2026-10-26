@@ -4,6 +4,7 @@
  //
 #include "hal/hal_wifi.h"
 #include "hal/hal_generic.h"
+#include "hal/bk7231/hal_ble_mesh_bk7231n.h"
 #include "hal/hal_flashVars.h"
 #include "hal/hal_adc.h"
 #include "new_common.h"
@@ -1404,6 +1405,7 @@ void Main_Init_BeforeDelay_Unsafe(bool bAutoRunScripts) {
 	HAL_BTProxy_RegisterCommands();
 #endif
 #endif
+	HAL_BLEMeshBK7231N_RegisterCommands();
 
 	/* Automatic disable of PIN MONITOR after reboot */
 	if (CFG_HasFlag(OBK_FLAG_HTTP_PINMONITOR)) {

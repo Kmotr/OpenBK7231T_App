@@ -11,6 +11,7 @@
 // Commands register, execution API and cmd tokenizer
 #include "../cmnds/cmd_public.h"
 #include "../hal/hal_wifi.h"
+#include "../hal/bk7231/hal_ble_mesh_bk7231n.h"
 #include "../driver/drv_public.h"
 //#include "../driver/drv_ntp.h"
 #include "../driver/drv_deviceclock.h"
@@ -823,7 +824,10 @@ int tasCmnd(obk_mqtt_request_t* request) {
 	// I think that our function get_received always ensured that
 	// there is a NULL terminating character after payload of MQTT
 	// So we can feed it directly as command
-	CMD_ExecuteCommandArgs(p, args, COMMAND_FLAG_SOURCE_MQTT);
+	commandResult_t command_result = CMD_ExecuteCommandArgs(p, args, COMMAND_FLAG_SOURCE_MQTT);
+	if (command_result == CMD_RES_OK && stribegins(request->topic, "cmnd/")) {
+		HAL_BLEMeshBK7231N_OnMqttCommand(p, args);
+	}
 #if ENABLE_TASMOTA_JSON
 	MQTT_ProcessCommandReplyJSON(p, args, COMMAND_FLAG_SOURCE_MQTT);
 #endif

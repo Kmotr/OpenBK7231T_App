@@ -558,7 +558,7 @@ void CFG_SetFlags(uint32_t first4bytes, uint32_t second4bytes) {
 	}
 }
 void CFG_SetFlag(int flag, bool bValue) {
-	int *cfgValue;
+	uint32_t *cfgValue;
 	if (flag >= 32) {
 		cfgValue = &g_cfg.genericFlags2;
 		flag -= 32;
@@ -567,7 +567,7 @@ void CFG_SetFlag(int flag, bool bValue) {
 		cfgValue = &g_cfg.genericFlags;
 	}
 
-	int nf = *cfgValue;
+	uint32_t nf = *cfgValue;
 	if(bValue) {
 		BIT_SET(nf,flag);
 	} else {

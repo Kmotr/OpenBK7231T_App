@@ -10,7 +10,7 @@
 #include "../../beken378/app/config/param_config.h"
 #include "lwip/netdb.h"
 #include "../../new_pins.h"
-#include "../src/new_cfg.h"
+#include "../../new_cfg.h"
 
 #ifdef PLATFORM_BEKEN_NEW
 

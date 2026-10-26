@@ -1,6 +1,8 @@
 # Introduction
 
 OpenBK7231T/OpenBeken is a Tasmota/ESPHome alternative for modern Tuya-based modules, offering MQTT and Home Assistant compatibility.
+
+This fork also contains an experimental BK7231N BLE command relay. It is not Bluetooth SIG Mesh; see [the design, setup, build, and limitations](docs/experimentalBleMeshBk7231N.md).
 Although this repository is named `OpenBK7231T_App`, it has evolved into a multi-platform application, supporting builds for multiple chipsets from various vendors, including ESWIN, Transa Semi, Lightning Semi, Espressif, Beken, WinnerMicro, Xradiotech/Allwinner, Realtek, and Bouffalo Lab.
 
 -   [BK7231T](https://www.elektroda.com/rtvforum/topic3951016.html) (eg [WB3S](https://developer.tuya.com/en/docs/iot/wb3s-module-datasheet?id=K9dx20n6hz5n4), [WB2S](https://developer.tuya.com/en/docs/iot/wb2s-module-datasheet?id=K9ghecl7kc479), WB2L)

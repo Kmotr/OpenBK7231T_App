@@ -19,6 +19,7 @@ CCFLAGS += -DPLATFORM_BK7252
 CCFLAGS += -DENABLE_DRIVER_MDNS=1 -DLWIP_MDNS_RESPONDER=1 -DLWIP_NUM_NETIF_CLIENT_DATA=1
 else ifeq ($(CFG_SOC_NAME), 5)
 CCFLAGS += -DPLATFORM_BK7231N
+CCFLAGS += -DENABLE_BLE_MESH_CUSTOM=1
 else ifeq ($(CFG_SOC_NAME), 7)
 CCFLAGS += -DPLATFORM_BK7238
 else ifeq ($(CFG_SOC_NAME), 8)
@@ -40,6 +41,7 @@ APP_C += $(OBK_DIR)/hal/bk7231/hal_wifi_bk7231.c
 APP_C += $(OBK_DIR)/hal/bk7231/hal_uart_bk7231.c
 APP_C += $(OBK_DIR)/hal/bk7231/hal_ota_bk7231.c
 APP_C += $(OBK_DIR)/hal/bk7231/hal_bt_proxy_bk7231.c
+APP_C += $(OBK_DIR)/hal/bk7231/hal_ble_mesh_bk7231n.c
 
 OBK_SRCS = $(OBK_DIR)/
 include $(OBK_DIR)/../platforms/obk_main.mk

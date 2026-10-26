@@ -1489,7 +1489,7 @@ static void HTTP_WiFiScanDone(void* ctxt, uint8_t param) {
 	}
 }
 
-#if PLATFORM_BEKEN_NEW
+#if PLATFORM_BEKEN_NEW && !PLATFORM_BK7231N
 #define SECURITY_TYPE_NONE			BK_SECURITY_TYPE_NONE
 #define SECURITY_TYPE_WEP			BK_SECURITY_TYPE_WEP
 #define SECURITY_TYPE_WPA_TKIP		BK_SECURITY_TYPE_WPA_TKIP
@@ -1544,14 +1544,14 @@ static const char* HTTP_WiFiSecurityName(wlan_sec_type_t sec) {
 	case SECURITY_TYPE_WEP: return "WEP";
 	case SECURITY_TYPE_WPA_TKIP: return "WPA-TKIP";
 	case SECURITY_TYPE_WPA_AES: return "WPA-AES";
-#if PLATFORM_BEKEN_NEW || PLATFORM_ARMINO
+#if (PLATFORM_BEKEN_NEW && !PLATFORM_BK7231N) || PLATFORM_ARMINO
 	case BK_SECURITY_TYPE_WPA_MIXED: return "WPA-Mixed";
 #endif
 	case SECURITY_TYPE_WPA2_TKIP: return "WPA2-TKIP";
 	case SECURITY_TYPE_WPA2_AES: return "WPA2-AES";
 	case SECURITY_TYPE_WPA2_MIXED: return "WPA2-Mixed";
 	// old sdk sees WPA3 or mixed WPA3 as WPA2-AES
-#if PLATFORM_BEKEN_NEW || PLATFORM_ARMINO
+#if (PLATFORM_BEKEN_NEW && !PLATFORM_BK7231N) || PLATFORM_ARMINO
 	case BK_SECURITY_TYPE_WPA3_SAE: return "WPA3-SAE";
 	case BK_SECURITY_TYPE_WPA3_WPA2_MIXED: return "WPA3/WPA2";
 	case BK_SECURITY_TYPE_EAP: return "EAP";
@@ -1754,7 +1754,7 @@ int http_fn_cfg_wifi(http_request_t* request) {
 		else {
 			rtos_delay_milliseconds(HTTP_WIFI_SCAN_TIMEOUT_MS);
 		}
-#if PLATFORM_BEKEN_NEW || PLATFORM_ARMINO
+#if (PLATFORM_BEKEN_NEW && !PLATFORM_BK7231N) || PLATFORM_ARMINO
 		ScanResult_adv apList;
 		int res;
 		memset(&apList, 0, sizeof(apList));
@@ -3091,6 +3091,9 @@ int http_fn_cm(http_request_t* request) {
 int http_fn_cfg(http_request_t* request) {
 	http_setup(request, httpMimeTypeHTML);
 	http_html_start(request, "Config");
+#if PLATFORM_BK7231N && ENABLE_BLE_MESH_CUSTOM
+	postFormAction(request, "blemesh", "Configure BLE Mesh");
+#endif
 	postFormAction(request, "cfg_pins", "Configure Module");
 #if ENABLE_HTTP_FLAGS
 	postFormAction(request, "cfg_generic", "Configure General/Flags");

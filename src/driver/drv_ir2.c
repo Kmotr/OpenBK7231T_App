@@ -330,9 +330,9 @@ static commandResult_t CMD_IR2_SetupIR2(const void* context, const char* cmd, co
 		ADDLOG_ERROR(LOG_FEATURE_IR, (char *)"bk_timer driver not initialised?");
 		if ((int)res == -5) {
 			ADDLOG_INFO(LOG_FEATURE_IR, (char *)"bk_timer sddev not found - not initialised?");
-			return;
+			return CMD_RES_ERROR;
 		}
-		return;
+		return CMD_RES_ERROR;
 	}
 
 

@@ -3,10 +3,12 @@ on:
   push:
     branches:
       - feature/ble-mesh-bk7231n
+    paths-ignore:
+      - 'Release/*.rbl'
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build-rbl:
@@ -36,6 +38,16 @@ jobs:
           python3 -m pip install --user pycryptodome
           python3 build_scripts/package_bk7231n_rbl.py "sdk/OpenBK7231N/apps/OpenBK7231N/output/$BUILD_DIR/OpenBK7231N_$BUILD_DIR.bin" "dist/OpenBK7231N_1.18.318-blemesh.3_Test.rbl" --version "$MESH_VERSION"
           sha256sum "dist/OpenBK7231N_1.18.318-blemesh.3_Test.rbl"
+
+      - name: Publish standalone RBL to the feature branch
+        run: |
+          mkdir -p Release
+          cp "dist/OpenBK7231N_1.18.318-blemesh.3_Test.rbl" "Release/OpenBK7231N_1.18.318-blemesh.3_Test.rbl"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "Release/OpenBK7231N_1.18.318-blemesh.3_Test.rbl"
+          git commit -m "Publish OpenBK7231N RBL 1.18.318-blemesh.3_Test"
+          git push origin HEAD:feature/ble-mesh-bk7231n
 
       - name: Upload OTA RBL
         uses: actions/upload-artifact@v6

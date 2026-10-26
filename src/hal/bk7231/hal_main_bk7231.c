@@ -2,6 +2,7 @@
 #include "../../new_common.h"
 #include "../../logging/logging.h"
 #include "../../quicktick.h"
+#include "hal_ble_mesh_bk7231n.h"
 
 #if !PLATFORM_ARMINO
 #include "../../beken378/app/config/param_config.h"
@@ -179,6 +180,8 @@ void user_main(void)
 {
     OSStatus err;
 	Main_Init();
+    /* Start BLE only after the full network/application startup completed. */
+    HAL_BLEMeshBK7231N_OnSystemReady();
 
 
   err = rtos_init_timer(&g_main_timer_1s,

@@ -85,6 +85,10 @@ void __attribute__((weak)) HAL_BLEMeshBK7231N_OnMqttCommand(const char* command,
 	(void)args;
 }
 
+void __attribute__((weak)) HAL_BLEMeshBK7231N_OnSystemReady(void)
+{
+}
+
 bool __attribute__((weak)) HAL_BTProxy_IsInit(void)
 {
 	return false;

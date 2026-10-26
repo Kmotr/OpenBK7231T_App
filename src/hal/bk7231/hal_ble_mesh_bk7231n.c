@@ -18,6 +18,7 @@
 #include "app_ble.h"
 #include "app_ble_task.h"
 #include "ble_ui.h"
+#include "queue.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -70,12 +71,15 @@ static uint32_t g_recent_relay_uptime[MESH_OP_MAX + 1];
 static uint8_t g_recent_relay_valid[MESH_OP_MAX + 1];
 
 static void mesh_adv_frame(const uint8_t frame[MESH_FRAME_SIZE]);
+static int mesh_apply_worker_start(void);
 
 static void mesh_ble_event(ble_event_t event, void *param) {
     if (event != BLE_ACTIVITY_CREATED_IND || !param) return;
     struct ble_activity_created_ind *created = (struct ble_activity_created_ind *)param;
     if (created->actv_type == BLE_ACTV_TYPE_SCAN) {
+#if !ENABLE_BT_PROXY
         if (get_app_ble_scan_state() == APP_SCAN_STATE_CREATED) appm_scan_fsm_next();
+#endif
         return;
     }
     if (created->actv_type != BLE_ACTV_TYPE_ADV) return;
@@ -101,6 +105,10 @@ static void mesh_scan_callback(recv_adv_t *info) {
 #endif
 
 static void mesh_start_radio(void) {
+    if (!mesh_apply_worker_start()) {
+        ADDLOG_ERROR(LOG_FEATURE_GENERAL, "BLE Mesh command queue unavailable");
+        return;
+    }
 #if ENABLE_BT_PROXY
     if (!g_mesh_stack_started) {
         HAL_BTProxy_Init();
@@ -357,6 +365,43 @@ static void mesh_apply(const uint8_t *f) {
     }
 }
 
+typedef struct {
+    uint8_t frame[MESH_FRAME_SIZE];
+} mesh_apply_item_t;
+
+static QueueHandle_t g_mesh_apply_queue;
+static TaskHandle_t g_mesh_apply_task;
+
+static void mesh_apply_worker(void *unused) {
+    mesh_apply_item_t item;
+    (void)unused;
+    for (;;) {
+        if (xQueueReceive(g_mesh_apply_queue, &item, portMAX_DELAY) == pdTRUE)
+            mesh_apply(item.frame);
+    }
+}
+
+static int mesh_apply_worker_start(void) {
+    if (g_mesh_apply_queue && g_mesh_apply_task) return 1;
+    if (!g_mesh_apply_queue) g_mesh_apply_queue = xQueueCreate(16, sizeof(mesh_apply_item_t));
+    if (!g_mesh_apply_queue) return 0;
+    if (xTaskCreate(mesh_apply_worker, "mesh_apply", 1024, NULL, 14, &g_mesh_apply_task) != pdPASS) {
+        vQueueDelete(g_mesh_apply_queue);
+        g_mesh_apply_queue = NULL;
+        g_mesh_apply_task = NULL;
+        return 0;
+    }
+    return 1;
+}
+
+static void mesh_queue_apply(const uint8_t *frame) {
+    mesh_apply_item_t item;
+    if (!frame || !g_mesh_apply_queue) return;
+    memcpy(item.frame, frame, sizeof(item.frame));
+    if (xQueueSend(g_mesh_apply_queue, &item, 0) != pdPASS)
+        ADDLOG_ERROR(LOG_FEATURE_GENERAL, "BLE Mesh command queue full; dropping received state");
+}
+
 void HAL_BLEMeshBK7231N_OnAdvertisement(const void *received) {
     const recv_adv_t *info = (const recv_adv_t *)received;
     if (!info || !mesh_is_provisioned()) return;
@@ -374,7 +419,7 @@ void HAL_BLEMeshBK7231N_OnAdvertisement(const void *received) {
     int state_result = 1;
     if (f[2] == 0 || f[2] == mesh_node()) {
         state_result = mesh_accept_for_local_state(f);
-        if (state_result == 2) mesh_apply(f);
+        if (state_result == 2) mesh_queue_apply(f);
     }
     if (f[6] > 1 && f[6] <= MESH_TTL_MAX && state_result != 0 && mesh_should_relay(f)) {
         --f[6]; mesh_tag(f); mesh_adv_frame(f);
@@ -580,11 +625,16 @@ void HAL_BLEMeshBK7231N_RegisterCommands(void) {
     CMD_RegisterCommand("BLEMesh", CMD_BLEMesh, NULL);
     HTTP_RegisterCallback("/blemesh", HTTP_GET, HAL_BLEMeshBK7231N_WebConfig, 1);
     HTTP_RegisterCallback("/blemesh", HTTP_POST, HAL_BLEMeshBK7231N_WebConfig, 1);
-    if (mesh_is_provisioned()) mesh_start_radio();
+}
+
+void HAL_BLEMeshBK7231N_OnSystemReady(void) {
+    extern int bSafeMode;
+    if (!bSafeMode && mesh_is_provisioned()) mesh_start_radio();
 }
 #else
 void HAL_BLEMeshBK7231N_OnAdvertisement(const void *info) { (void)info; }
 void HAL_BLEMeshBK7231N_RegisterCommands(void) { }
 void HAL_BLEMeshBK7231N_OnMqttCommand(const char *command, const char *args) { (void)command; (void)args; }
+void HAL_BLEMeshBK7231N_OnSystemReady(void) { }
 int HAL_BLEMeshBK7231N_WebConfig(http_request_t *request) { (void)request; return 0; }
 #endif

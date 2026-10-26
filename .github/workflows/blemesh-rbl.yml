@@ -29,7 +29,7 @@ jobs:
         run: make APP_NAME=OpenBK7231N sdk/OpenBK7231N/apps/OpenBK7231N
 
       - name: Build BK7231N firmware
-        run: make -j2 -C sdk/OpenBK7231N/platforms/bk7231n/bk7231n_os APP_BIN_NAME=OpenBK7231N USER_SW_VER="$USER_SW_VER" APP_VERSION="$BUILD_DIR"
+        run: make -j2 -C sdk/OpenBK7231N/platforms/bk7231n/bk7231n_os APP_BIN_NAME=OpenBK7231N USER_SW_VER="$USER_SW_VER" OBK_VARIANT=2 APP_VERSION="$BUILD_DIR"
 
       - name: Package and verify OTA RBL
         run: |
